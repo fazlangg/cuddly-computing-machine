@@ -1,0 +1,279 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Hadiah Special Untuk Kamu!</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <style>
+        @import url('https://fonts.googleapis.com/css2?family=Creepster&display=swap');
+        
+        body {
+            overflow: hidden;
+            transition: all 0.5s;
+            font-family: 'Arial', sans-serif;
+        }
+        
+        .scary-mode {
+            background-color: #000 !important;
+            color: #ff0000 !important;
+            font-family: 'Creepster', cursive !important;
+        }
+        
+        .heart {
+            position: absolute;
+            pointer-events: none;
+            animation: float 6s ease-in-out infinite;
+        }
+        
+        @keyframes float {
+            0% { transform: translateY(0) rotate(0deg); opacity: 1; }
+            100% { transform: translateY(-100vh) rotate(360deg); opacity: 0; }
+        }
+        
+        .skull {
+            animation: pulse 2s infinite;
+            filter: drop-shadow(0 0 10px #ff0000);
+        }
+        
+        @keyframes pulse {
+            0% { transform: scale(1); }
+            50% { transform: scale(1.1); }
+            100% { transform: scale(1); }
+        }
+        
+        .blood-drop {
+            position: absolute;
+            background-color: #ff0000;
+            width: 5px;
+            height: 5px;
+            border-radius: 50% 50% 50% 50% / 60% 60% 40% 40%;
+            animation: blood-drip 4s linear forwards;
+        }
+        
+        @keyframes blood-drip {
+            0% { transform: translateY(-100vh); opacity: 1; }
+            100% { transform: translateY(100vh); opacity: 0.5; }
+        }
+        
+        .password-input {
+            background: rgba(0, 0, 0, 0.7);
+            border: 1px solid #ff0000;
+            color: white;
+            padding: 10px;
+            font-size: 1.2rem;
+        }
+        
+        #scaryContent {
+            display: none;
+        }
+    </style>
+</head>
+<body class="bg-pink-100 flex flex-col items-center justify-center h-screen p-4">
+    <div id="happyContent" class="text-center">
+        <img src="https://storage.googleapis.com/workspace-0f70711f-8b4e-4d94-86f1-2a93ccde5887/image/d729fc04-bf20-45c4-bf08-449870574426.png" alt="Hadiah berwarna pink dengan pita merah muda" class="mx-auto mb-6 rounded-full shadow-lg" />
+        <h1 class="text-4xl font-bold text-pink-600 mb-4">SELAMAT! 🎉</h1>
+               <h2 class="text-2xl text-pink-500 mb-6">Kamu Mendapatkan Hadiah Spesial!</h2>
+        <p class="text-gray-700 mb-8">Klik tombol di bawah ini untuk melihat hadiah mengejutkan yang kami siapkan khusus untukmu!</p>
+        
+        <button id="showGiftBtn" class="bg-pink-500 hover:bg-pink-600 text-white font-bold py-4 px-8 rounded-full text-xl shadow-lg transform hover:scale-105 transition duration-300">
+            Lihat Hadiahmu Sekarang!
+        </button>
+    </div>
+    
+    <div id="scaryContent" class="w-full h-full flex flex-col items-center justify-center p-4">
+        <div class="skull mb-6">
+            <img src="https://storage.googleapis.com/workspace-0f70711f-8b4e-4d94-86f1-2a93ccde5887/image/9aa5403e-6987-4624-81d5-f8ae6c80ca3a.png" alt="Tengkorak berwarna merah menyala dengan mata bersinar" />
+        </div>
+        
+        <h1 class="text-3xl font-bold text-center mb-4">AKSES DI TOLAK!</h1>
+        <p class="text-center mb-6 text-xl">Perangkatmu telah terkunci!<br>Kami memiliki semua datamu!</p>
+        
+        <div class="text-center mb-8 text-red-400">
+            <p>Untuk membuka kunci, masukkan password yang benar</p>
+            <p>Kesempatan: <span id="attempts">3</span></p>
+        </div>
+        
+        <input type="password" id="passwordInput" class="password-input mb-4 w-full max-w-xs" placeholder="Masukkan password...">
+        <button id="submitBtn" class="bg-red-700 hover:bg-red-800 text-white font-bold py-3 px-6 rounded">
+            SUBMIT
+        </button>
+        
+        <div id="timer" class="mt-8 text-xl">
+            <p>Waktu tersisa: <span id="countdown">60</span> detik</p>
+        </div>
+    </div>
+
+    <script>
+        document.addEventListener('DOMContentLoaded', function() {
+            const showGiftBtn = document.getElementById('showGiftBtn');
+            const happyContent = document.getElementById('happyContent');
+            const scaryContent = document.getElementById('scaryContent');
+            const passwordInput = document.getElementById('passwordInput');
+            const submitBtn = document.getElementById('submitBtn');
+            const attemptsDisplay = document.getElementById('attempts');
+            const countdownDisplay = document.getElementById('countdown');
+            
+            let attempts = 3;
+            let timeLeft = 60;
+            let countdown;
+            
+            // Create floating hearts for happy mode
+            function createHearts() {
+                for (let i = 0; i < 15; i++) {
+                    setTimeout(() => {
+                        const heart = document.createElement('div');
+                        heart.innerHTML = '❤️';
+                        heart.classList.add('heart');
+                        heart.style.left = Math.random() * 100 + 'vw';
+                        heart.style.fontSize = (Math.random() * 20 + 10) + 'px';
+                        heart.style.animationDuration = (Math.random() * 3 + 3) + 's';
+                        document.body.appendChild(heart);
+                        
+                        setTimeout(() => {
+                            heart.remove();
+                        }, 6000);
+                    }, i * 300);
+                }
+            }
+            
+            // Create blood drops for scary mode
+            function createBloodDrops() {
+                for (let i = 0; i < 20; i++) {
+                    setTimeout(() => {
+                        const drop = document.createElement('div');
+                        drop.classList.add('blood-drop');
+                        drop.style.left = Math.random() * 100 + 'vw';
+                        drop.style.width = (Math.random() * 10 + 5) + 'px';
+                        drop.style.height = (Math.random() * 15 + 10) + 'px';
+                        drop.style.animationDelay = (Math.random() * 2) + 's';
+                        document.body.appendChild(drop);
+                        
+                        setTimeout(() => {
+                            drop.remove();
+                        }, 4000);
+                    }, i * 300);
+                }
+            }
+            
+            // Start countdown timer
+            function startCountdown() {
+                countdown = setInterval(() => {
+                    timeLeft--;
+                    countdownDisplay.textContent = timeLeft;
+                    
+                    if (timeLeft <= 0) {
+                        clearInterval(countdown);
+                        document.body.innerHTML = `
+                            <div class="flex items-center justify-center h-screen bg-black text-red-500 p-4 text-center">
+                                <div>
+                                    <h1 class="text-4xl font-bold mb-4">TERLAMBAT!</h1>
+                                    <p class="text-2xl">Semua data di perangkatmu telah terhapus!</p>
+                                    <p class="text-xl mt-4">Bye bye...</p>
+                                </div>
+                            </div>
+                        `;
+                    }
+                }, 1000);
+            }
+            
+            // Show happy content initially
+            createHearts();
+            setInterval(createHearts, 5000);
+            
+            // Button to enter scary mode
+            showGiftBtn.addEventListener('click', function() {
+                // Request fullscreen
+                if (document.documentElement.requestFullscreen) {
+                    document.documentElement.requestFullscreen();
+                } else if (document.documentElement.webkitRequestFullscreen) {
+                    document.documentElement.webkitRequestFullscreen();
+                } else if (document.documentElement.msRequestFullscreen) {
+                    document.documentElement.msRequestFullscreen();
+                }
+                
+                // Switch to scary mode
+                setTimeout(() => {
+                    document.body.classList.add('scary-mode');
+                    happyContent.style.display = 'none';
+                    scaryContent.style.display = 'flex';
+                    
+                    // Play scary sound (dummy, would need actual sound file)
+                    try {
+                        const audio = new Audio('https://assets.mixkit.co/active_storage/sfx/2579/2579-preview.mp3');
+                        audio.volume = 0.5;
+                        audio.play();
+                    } catch (e) {
+                        console.log('Sound error:', e);
+                    }
+                    
+                    createBloodDrops();
+                    setInterval(createBloodDrops, 3000);
+                    startCountdown();
+                    
+                    // Shake effect
+                    document.body.style.animation = 'shake 0.5s';
+                    setTimeout(() => {
+                        document.body.style.animation = '';
+                    }, 500);
+                }, 500);
+            });
+            
+            // Password submission
+            submitBtn.addEventListener('click', function() {
+                if (passwordInput.value.toLowerCase() === 'faz') {
+                    // Correct password
+                    clearInterval(countdown);
+                    
+                    document.body.classList.remove('scary-mode');
+                    document.body.style.background = 'green';
+                    scaryContent.innerHTML = `
+                        <div class="text-center text-white">
+                            <h1 class="text-3xl font-bold mb-4">PASSWORD BENAR!</h1>
+                            <p class="text-xl">Perangkatmu telah dibuka kuncinya...</p>
+                        </div>
+                    `;
+                    
+                    setTimeout(() => {
+                        if (document.exitFullscreen) {
+                            document.exitFullscreen();
+                        } else if (document.webkitExitFullscreen) {
+                            document.webkitExitFullscreen();
+                        } else if (document.msExitFullscreen) {
+                            document.msExitFullscreen();
+                        }
+                        
+                        // Reload page after exiting fullscreen
+                        location.reload();
+                    }, 2000);
+                } else {
+                    // Wrong password
+                    attempts--;
+                    attemptsDisplay.textContent = attempts;
+                    
+                    passwordInput.value = '';
+                    passwordInput.style.borderColor = 'red';
+                    passwordInput.placeholder = 'Password salah! Coba lagi...';
+                    
+                    setTimeout(() => {
+                        passwordInput.style.borderColor = '#ff0000';
+                    }, 1000);
+                    
+                    if (attempts <= 0) {
+                        document.body.innerHTML = `
+                            <div class="flex items-center justify-center h-screen bg-black text-red-500 p-4 text-center">
+                                <div>
+                                    <h1 class="text-4xl font-bold mb-4">PERINGATAN!</h1>
+                                    <p class="text-2xl">Kamu gagal memasukkan password dengan benar!</p>
+                                    <p class="text-xl mt-4">Semua fotomu akan dihapus dalam 5 detik...</p>
+                                </div>
+                            </div>
+                        `;
+                    }
+                }
+            });
+        });
+    </script>
+</body>
+</html>
+
